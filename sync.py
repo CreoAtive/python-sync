@@ -1,40 +1,101 @@
-import sys
-import subprocess
+# python
 import os
+import re
+import subprocess
 
-source = '/cygdrive/d/git/cg/onTheHunt/assets/girl/cg-exchange/output-mari'
-target = 'ssh-w0082e65@git.esperester.com:/www/htdocs/w0082e65/git.esperester.com/cg/onTheHunt/assets/girl/cg-exchange/output-mari'
+# modules
+import utils
 
-def diff(source, target):
-    diff_cmd = ['rsync', '-avnc', '-e ssh', source, target]
+rsync_options = {
+    'checksum': '-c',
+    'recursive': '-r',
+    'verbose': '-v',
+    'update': '-u',
+    'links': '-l',
+    'perms': '-p',
+    'owner': '-o',
+    'group': '-g',
+    'times': '-t',
+    'dry': '-n',
+    'compress': '-z',
+    'delete': '--delete',
+    'ignore_times': '--ignore-times',
+    'size_only': '--size-only',
+    'progress': '--progress',
+    'itemize_changes': '--itemize-changes'
+}
 
-    popen = subprocess.Popen(diff_cmd, stdout = subprocess.PIPE)
+class SyncResult:
+    '''an object containing all information about the sync'''
 
-    source_basename = os.path.basename(source)
+    def __init__(self, files = []):
+        self._files = files
 
-    paths = []
+    def getFiles(self):
+        return self._files
 
-    for line in iter(popen.stdout.readline, b''):
-        if line.startswith(source_basename):
-            path = line.strip()
+def compileOptions(options):
+    args = []
+    kwargs = []
+    options_compiled = []
 
-            diff_dirname, diff_basename = os.path.split(path)
+    for option_name in options:
+        if option_name in rsync_options:
+            option = rsync_options[option_name]
 
-            if diff_basename:
-                paths.append({
-                    'path': diff_dirname,
-                    'name': diff_basename
-                })
+            if option.startswith('--'):
+                kwargs.append(option)
+            else:
+                args.append(option[1:])
 
-    return paths
+    if args:
+        options_compiled =  ['-{args}'.format(args = ''.join(args))]
 
-for arg in sys.argv[1:]:
-    if arg == 'diff':
-        paths = diff(source, target)
+    if kwargs:
+        options_compiled += kwargs
 
-        print '{files} have been changed'.format(files = len(paths))
+    return options_compiled
 
-        if '-v' in sys.argv[2:]:
-            for path in paths:
-                print path['name']
-        #print [path['name'] for path in paths]
+def push(local = '', remote = '', dry = False):
+    '''push from local to remote'''
+    if local and remote:
+        options = ['checksum', 'recursive', 'verbose', 'links', 'perms', 'owner', 'group', 'times', 'compress', 'progress', 'delete']
+
+        if dry:
+            options.append('dry')
+
+        options_compiled = compileOptions(options)
+
+        push_cmd = filter(bool, ['rsync', '-e ssh'] + options_compiled + ['--exclude=.repository', local, remote])
+
+        print push_cmd
+
+        popen = subprocess.Popen(push_cmd, stdout = subprocess.PIPE)
+
+        #print popen.stdout.read()
+
+        files = []
+
+        try:
+            for line in iter(popen.stdout.readline, b''):
+                stripped_line = line.strip()
+
+                print stripped_line
+
+                root, extension = os.path.splitext(stripped_line)
+
+                if re.match(r'[\w\d]+', extension[1:]) and not utils.isDigit(extension[1:]):
+                    files.append(stripped_line)
+        except Exception as e:
+            print e.message
+        finally:
+            return SyncResult(files)
+
+def pull(local = '', remote = '', dry = False):
+    '''pull from remote to local'''
+
+    return push(remote, local, dry)
+
+def diff():
+    '''get diff from local to remote'''
+    pass
