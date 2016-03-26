@@ -1,0 +1,9 @@
+('/Users/bernhardesperester/git/coding/python/python-sync/build/pysync/pysync',
+ True,
+ False,
+ None,
+ None,
+ [],
+ None,
+ False,
+ 1459005446)

@@ -84,9 +84,29 @@ def clone(url = '', *args):
         except Exception as e:
             print e.message
 
-def setUrl(origin = '', url = ''):
+def setRemote(origin = '', url = '', *args):
     '''set remote url'''
+
+    print 'set remote {origin} to {url}'.format(origin = origin, url = url)
+
+    config.setRemote(origin, url)
+    config.save()
+
+def removeRemote(origin = '', *args):
+    '''remove origin'''
     pass
+
+def showHelp():
+    '''show help'''
+
+    print '''Help
+
+init                            Initialize empty repository
+clone <url>                     Clone from remote repository
+push <origin>                   Push to remote repository
+pull                            Pull from remote repository
+set-remote <origin> <url>       Set remote repository url
+remove-remote <origin>          Remove repository'''
 
 def main(args = []):
     '''main method'''
@@ -94,16 +114,24 @@ def main(args = []):
         method = args.pop(0)
 
         if method == 'init':
-            init()
+            return init()
 
         if method == 'clone':
-            clone(*args)
+            return clone(*args)
 
         if method == 'push':
-            push(*args)
+            return push(*args)
 
         if method == 'pull':
-            pull()
+            return pull()
+
+        if method == 'set-remote':
+            return setRemote(*args)
+
+        if method == 'remove-remote':
+            return removeRemote(*args)
+
+    return showHelp()
 
 if __name__ == '__main__':
     main(sys.argv[1:])
