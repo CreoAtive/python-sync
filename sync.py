@@ -5,6 +5,7 @@ import subprocess
 
 # modules
 import utils
+import repository
 
 rsync_options = {
     'checksum': '-c',
@@ -22,7 +23,11 @@ rsync_options = {
     'ignore_times': '--ignore-times',
     'size_only': '--size-only',
     'progress': '--progress',
-    'itemize_changes': '--itemize-changes'
+    'itemize_changes': '--itemize-changes',
+    'backup': '--backup',
+    'delete_during': '--delete-during',
+    'backup_dir': '--backup-dir={path}'.format(path = os.path.join(repository.getPath(), 'backup')),
+    'exclude': '--exclude=.repository'
 }
 
 class SyncResult:
@@ -59,14 +64,14 @@ def compileOptions(options):
 def push(local = '', remote = '', dry = False):
     '''push from local to remote'''
     if local and remote:
-        options = ['checksum', 'recursive', 'verbose', 'links', 'perms', 'owner', 'group', 'times', 'compress', 'progress', 'delete']
+        options = ['checksum', 'recursive', 'verbose', 'links', 'perms', 'owner', 'group', 'times', 'compress', 'progress', 'delete_during', 'backup', 'backup_dir', 'exclude', 'dry']
 
         if dry:
             options.append('dry')
 
         options_compiled = compileOptions(options)
 
-        push_cmd = filter(bool, ['rsync', '-e ssh'] + options_compiled + ['--exclude=.repository', local, remote])
+        push_cmd = filter(bool, ['rsync', '-e ssh'] + options_compiled + [local, remote])
 
         print push_cmd
 
