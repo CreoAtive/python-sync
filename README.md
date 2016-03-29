@@ -4,10 +4,10 @@ A little package to mimic git-like-syncing-behaviour for large binary files with
 
 You may add any of rsync's double-dash options to modify the sync command. You may also use a file named .exclude in your repository-root directory to exclude files and directories. See http://linux.die.net/man/1/rsync for more information.
 
-Deleted files will be moved to
+Deleted files will be moved to:
 
 ```
-.repository/backups/<date>.
+.repository/backups/<date>/
 ```
 
 ## init repository
