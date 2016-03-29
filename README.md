@@ -2,7 +2,7 @@
 
 A little package to mimic git-like-syncing-behaviour for large binary files with python and rsync. Best is to compile your own binary with PyInstaller and append it to $PATH.
 
-You may add any of rsync's double-dash options to modify the sync command.
+You may add any of rsync's double-dash options to modify the sync command. You may also use a file named .exclude in your repository-root directory to exclude files and directories. See http://linux.die.net/man/1/rsync for more information.
 
 Deleted files will be moved to
 
