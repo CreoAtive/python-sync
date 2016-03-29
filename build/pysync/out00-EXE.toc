@@ -6,7 +6,7 @@
  None,
  False,
  False,
- <PyInstaller.utils.win32.winmanifest.Manifest object at 0x00000000032EA0F0>,
+ <PyInstaller.utils.win32.winmanifest.Manifest object at 0x000000000326F0F0>,
  True,
  'pysync.pkg',
  [('out00-PYZ.pyz',
@@ -32,7 +32,7 @@
  [],
  False,
  False,
- 1459252472L,
+ 1459260187L,
  [('run.exe',
    'C:\\Python27\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\run.exe',
    'EXECUTABLE')])

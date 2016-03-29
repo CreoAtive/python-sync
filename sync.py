@@ -118,7 +118,7 @@ rsync_options = {
     '--version': 'print version number'
 }
 
-rsync_push_options = ['--checksum', '--recursive', '--verbose', '--links', '--times', '--compress', '--delete-during', '--backup', '--backup-dir={backup_dir}', '--exclude=.repository', '--exclude-from=.exclude', '--chmod=ugo=rwX', '--progress']
+rsync_push_options = ['--checksum', '--recursive', '--verbose', '--links', '--times', '--compress', '--delete-during', '--backup', '--backup-dir={backup_dir}', '--exclude=.repository', '--chmod=ugo=rwX', '--progress']
 
 class SyncResult:
     '''an object containing all information about the sync'''
@@ -149,6 +149,9 @@ def push(local = '', remote = '', *args, **kwargs):
         for arg in args:
             if arg in rsync_options:
                 options.append(arg)
+
+        if os.path.isfile(os.path.join(utils.getCurrentWorkingDir(), '.exclude')):
+            options.append('--exclude-from=.exclude')
 
         push_cmd = filter(bool, ['rsync', '-e ssh'] + options + [utils.urlPath(local), utils.urlPath(remote)])
 
