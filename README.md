@@ -1,6 +1,10 @@
 # python-sync
 
-A little package to mimic git-like-syncing-behaviour for large binary files with python and rsync. Deleted files will be moved to .repository/backups/<date>.
+A little package to mimic git-like-syncing-behaviour for large binary files with python and rsync. Best is to compile your own binary with PyInstaller and append it to $PATH.
+
+You may add any of rsync's double-dash options to modify the sync command.
+
+Deleted files will be moved to .repository/backups/<date>.
 
 ## init repository
 
@@ -31,7 +35,7 @@ python pysync.py pull
 Push changes to a remote origin.
 
 ```
-python pysync.py push origin
+python pysync.py push <origin>
 ```
 
 ## set remote origin
