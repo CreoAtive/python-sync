@@ -1,8 +1,12 @@
 # python
 import os
+import datetime
 
 # modules
 import utils
+
+REPOSITORY_DIR = '.repository'
+REPOSITORY_BACKUP_DIR = REPOSITORY_DIR + '/backups/{date}'.format(date = datetime.datetime.today().strftime('%Y%m%d'))
 
 def init():
     '''init repository'''
@@ -13,7 +17,7 @@ def init():
 
 def getPath():
     '''get repository path'''
-    return os.path.join(utils.getCurrentWorkingDir(), '.repository')
+    return os.path.join(utils.getCurrentWorkingDir(), REPOSITORY_DIR)
 
 def exists():
     '''check if repository exists'''

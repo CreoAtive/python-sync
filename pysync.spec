@@ -1,22 +1,33 @@
 # -*- mode: python -*-
+
+block_cipher = None
+
+
 a = Analysis(['pysync.py'],
-             pathex=['/Users/bernhardesperester/git/coding/python/python-sync'],
+             pathex=['D:\\git\\coding\\python\\python-sync'],
+             binaries=None,
+             datas=None,
              hiddenimports=[],
-             hookspath=None,
-             runtime_hooks=None)
-pyz = PYZ(a.pure)
+             hookspath=[],
+             runtime_hooks=[],
+             excludes=[],
+             win_no_prefer_redirects=False,
+             win_private_assemblies=False,
+             cipher=block_cipher)
+pyz = PYZ(a.pure, a.zipped_data,
+             cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
           name='pysync',
           debug=False,
-          strip=None,
+          strip=False,
           upx=True,
           console=True )
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
-               strip=None,
+               strip=False,
                upx=True,
                name='pysync')

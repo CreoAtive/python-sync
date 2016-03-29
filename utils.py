@@ -1,5 +1,6 @@
 # python
 import os
+import re
 
 def getCurrentWorkingDir():
     return os.getcwd()
@@ -25,3 +26,13 @@ def isDigit(s):
         return True
     except ValueError:
         return False
+
+def urlPath(path):
+    win_style_path_match = re.match(r'^(\w{1}:).*', path)
+
+    if win_style_path_match:
+        win_drive_letter = win_style_path_match.group(1)
+
+        path = path.replace(win_drive_letter, '/cygdrive/{win_drive_letter}'.format(win_drive_letter = win_style_path_match.group(1)[:-1].lower()))
+
+    return path.replace('\\', '/')

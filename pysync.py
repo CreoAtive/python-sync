@@ -9,6 +9,7 @@ import repository
 from config import config
 
 fake_local = '/Users/bernhardesperester/git/cg/test'
+fake_local = 'D:/git/cg/test'
 
 def init():
     '''init repository'''
@@ -20,25 +21,24 @@ def init():
     except Exception as e:
         print e.message
 
-def push(target = '', origin = '', *args):
+def push(origin = '', *args, **kwargs):
     '''push local to remote'''
 
-    if target == 'remote':
-        url = config.getRemote(origin)
+    url = config.getRemote(origin)
 
-        if url:
-            local = utils.getCurrentWorkingDir()
-            #local = fake_local
+    if url:
+        local = utils.getCurrentWorkingDir()
+        #local = fake_local
 
-            local += '/'
+        local += '/'
 
-            print 'push repository to {url}'.format(url = url)
+        print 'push repository to {url}'.format(url = url)
 
-            sync_result = sync.push(local, url)
+        sync_result = sync.push(local, url, *args, **kwargs)
 
-            print 'done syncing {files_count} files'.format(files_count = len(sync_result.getFiles()))
+        print 'done syncing {files_count} files'.format(files_count = len(sync_result.getFiles()))
 
-def pull():
+def pull(*args, **kwargs):
     '''pull remote to local'''
 
     url = config.getRemote('origin')
@@ -51,7 +51,7 @@ def pull():
 
         print 'pull repository from {url}'.format(url = url)
 
-        sync_result = sync.pull(local, url)
+        sync_result = sync.pull(local, url, *args, **kwargs)
 
         print 'done syncing {files_count} files'.format(files_count = len(sync_result.getFiles()))
 
@@ -59,7 +59,7 @@ def diff():
     '''get diff from local to remote'''
     pass
 
-def clone(url = '', *args):
+def clone(url = '', *args, **kwargs):
     '''clone repository from remte url'''
 
     if url:
@@ -78,13 +78,13 @@ def clone(url = '', *args):
                 config.setRemote('origin', url)
                 config.save()
 
-                pull()
+                pull(*args, **kwargs)
             except Exception as e:
                 print e.message
         except Exception as e:
             print e.message
 
-def setRemote(origin = '', url = '', *args):
+def setRemote(origin = '', url = '', *args, **kwargs):
     '''set remote url'''
 
     print 'set remote {origin} to {url}'.format(origin = origin, url = url)
@@ -92,7 +92,7 @@ def setRemote(origin = '', url = '', *args):
     config.setRemote(origin, url)
     config.save()
 
-def removeRemote(origin = '', *args):
+def removeRemote(origin = '', *args, **kwargs):
     '''remove origin'''
     pass
 
@@ -108,28 +108,45 @@ pull                            Pull from remote repository
 set-remote <origin> <url>       Set remote repository url
 remove-remote <origin>          Remove repository'''
 
+def prepArgs(*args):
+    prepped_args = []
+    prepped_kwargs = {}
+
+    for arg in args:
+        if '=' in arg:
+            kwarg, kwarg_value = arg.split('=', 2)
+
+            if kwarg:
+                prepped_kwargs[kwarg] = kwarg_value
+        else:
+            prepped_args.append(arg)
+
+    return prepped_args, prepped_kwargs
+
 def main(args = []):
     '''main method'''
     if args:
         method = args.pop(0)
 
+        args, kwargs = prepArgs(*args)
+
         if method == 'init':
             return init()
 
         if method == 'clone':
-            return clone(*args)
+            return clone(*args, **kwargs)
 
         if method == 'push':
-            return push(*args)
+            return push(*args, **kwargs)
 
         if method == 'pull':
             return pull()
 
         if method == 'set-remote':
-            return setRemote(*args)
+            return setRemote(*args, **kwargs)
 
         if method == 'remove-remote':
-            return removeRemote(*args)
+            return removeRemote(*args, **kwargs)
 
     return showHelp()
 
