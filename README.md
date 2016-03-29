@@ -4,7 +4,11 @@ A little package to mimic git-like-syncing-behaviour for large binary files with
 
 You may add any of rsync's double-dash options to modify the sync command.
 
-Deleted files will be moved to .repository/backups/<date>.
+Deleted files will be moved to
+
+```
+.repository/backups/<date>.
+```
 
 ## init repository
 
