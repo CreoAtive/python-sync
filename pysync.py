@@ -140,7 +140,7 @@ def main(args = []):
             return push(*args, **kwargs)
 
         if method == 'pull':
-            return pull()
+            return pull(*args, **kwargs)
 
         if method == 'set-remote':
             return setRemote(*args, **kwargs)

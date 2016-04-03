@@ -118,7 +118,7 @@ rsync_options = {
     '--version': 'print version number'
 }
 
-rsync_push_options = ['--checksum', '--recursive', '--verbose', '--links', '--times', '--compress', '--delete-during', '--backup', '--backup-dir={backup_dir}', '--exclude=.repository', '--chmod=ugo=rwX', '--progress']
+rsync_push_options = ['--checksum', '--recursive', '--verbose', '--links', '--times', '--compress', '--exclude=.repository', '--chmod=ugo=rwX', '--progress']
 
 class SyncResult:
     '''an object containing all information about the sync'''
@@ -146,12 +146,29 @@ def push(local = '', remote = '', *args, **kwargs):
     if local and remote:
         options = prepOptions(rsync_push_options)
 
+        '''
         for arg in args:
             if arg in rsync_options:
                 options.append(arg)
+        '''
 
+        # exclude from '.ecxlude' file
         if os.path.isfile(os.path.join(utils.getCurrentWorkingDir(), '.exclude')):
             options.append('--exclude-from=.exclude')
+
+        if '--latest' in args:
+            latest_options = [] + options + ['--dry-run']
+
+            latest_cmd = filter(bool, ['rsync', '-e ssh'] + latest_options + [utils.urlPath(local), utils.urlPath(remote)])
+
+            popen = subprocess.Popen(latest_cmd, stdout = subprocess.PIPE)
+
+            print popen.stdout.read()
+
+            quit()
+
+        if '--delete':
+            options = options + prepOptions(['--delete-during', '--backup', '--backup-dir={backup_dir}'])
 
         push_cmd = filter(bool, ['rsync', '-e ssh'] + options + [utils.urlPath(local), utils.urlPath(remote)])
 
