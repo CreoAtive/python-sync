@@ -29,155 +29,77 @@ def getPaths(path = ''):
 
     return paths
 
-def latestPaths(paths = []):
-    '''select latest version of path'''
-
-    filtered_paths = []
-
-    for path in paths:
-        current_head, current_tail = os.path.split(path)
-        current_root, current_ext = os.path.splitext(current_tail)
-        path_match = re.match(r'(.*_v)(\d{3})_', path)
-
-        if path_match:
-            path_part = path_match.group(1)
-            version = int(path_match.group(2))
-
-            try:
-                key = next(index for (index, d) in enumerate(filtered_paths) if d['path_part'] == path_part and d['extension'] == current_ext)
-
-                #print '{}\n{}\n\n'.format(path, filtered_paths[key]['path'])
-            except Exception:
-                key = False
-
-            #print version, current_tail
-
-            #print key, current_tail
-
-            if key:
-                matched_item = filtered_paths[key]
-
-                if version > matched_item['version']:
-                    #print version, matched_item['version']
-
-                    filtered_paths.pop(key)
-
-            filtered_paths.append({
-                'path': path,
-                'version': version,
-                'extension': current_ext,
-                'path_part': path_part
-            })
-
-    return filtered_paths
-
 def classifyPaths(paths = []):
+    '''classify paths based on their version, extension and type (file / dir)'''
+
     classified_paths = []
 
     for path in paths:
-        path_match = re.match(r'^(.+?_v)(\d{3})_(.+?)$', path)
         classify_match = re.match(r'^(.+?_v\d{3}_[\w\d\.\-_]+)(.*?)$', path)
 
-        if path_match and classify_match:
-            key = path_match.group(1)
-            version = int(path_match.group(2))
-            tail = path_match.group(3)
-            classified_path = classify_match.group(1)
-            classified_tail = classify_match.group(2)
+        if classify_match:
+            head = classify_match.group(1)
+            tail = classify_match.group(2)
 
-            root, extension = os.path.splitext(classified_path)
+            root, extension = os.path.splitext(head)
 
-            if not extension or classified_tail:
+            if not extension:
                 extension = 'dir'
 
-                print classified_tail
+            key_match = re.match(r'^(.+?_v)(\d{3})_(.+?)$', head)
 
-            classified_paths.append({
-                'path': classified_path,
-                'key': key,
-                'version': version,
-                'extension': extension
-            })
+            if key_match:
+                key = key_match.group(1)
+                version = int(key_match.group(2))
+
+                matching_paths = [path for index, path in enumerate(classified_paths) if path['key'] == key and path['extension'] == extension]
+
+                if not matching_paths:
+                    '''append path'''
+                    classified_paths.append({
+                        'extension': extension,
+                        'key': key,
+                        'path': head,
+                        'version': version
+                    })
+                else:
+                    matching_path = matching_paths[0]
+
+                    if matching_path['version'] < version:
+                        '''update path to latest version'''
+                        matching_path['version'] = version
+                        matching_path['path'] = head
 
     return classified_paths
 
-def groupedPaths(classified_paths = []):
-    sorted_input = sorted(classified_paths, key = lambda k: k['path'])
+def filterPaths(paths = [], classified_paths = []):
+    '''filter paths based on classified paths'''
 
-    groups = {}
-
-    for classified_path in classified_paths:
-        if not classified_path['key'] in groups:
-            groups[classified_path['key']] = {}
-
-        if not classified_path['extension'] in groups[classified_path['key']]:
-            groups[classified_path['key']][classified_path['extension']] = []
-
-        groups[classified_path['key']][classified_path['extension']].append(classified_path['path'])
-
-    return groups
-
-    #groups = itertools.groupby(sorted_input, key = lambda k: k['key'])
-
-    #return [{'key': k, 'paths': [x['path'] for x in v]} for k, v in groups]
-
-def filteredPaths(paths = [], grouped_paths = []):
     filtered_paths = []
 
     for path in paths:
-        current_head, current_tail = os.path.split(path)
-        current_root, current_ext = os.path.splitext(current_tail)
+        classify_match = re.match(r'^(.+?_v\d{3}_[\w\d\.\-_]+)(.*?)$', path)
 
-        if current_ext:
-            extension = current_ext
+        if classify_match:
+            '''check if path matches classified path'''
+
+            if any(p['path'] for p in classified_paths if path.startswith(p['path'])):
+                filtered_paths.append(path)
         else:
-            extension = 'dir'
-
-        matching_keys = [item for key, item in grouped_paths.iteritems() if path.startswith(key)]
-
-        if matching_keys:
-            matching_key = matching_keys[0]
-
-            if extension in matching_key.keys():
-                if not extension == 'dir':
-                    latest_version = matching_key[extension][-1]
-
-                    if not latest_version in filtered_paths:
-                        filtered_paths.append(latest_version)
-                else:
-                    latest_version = matching_key[extension][-1]
-
-                    #print latest_version
-
-                    if path.startswith(latest_version):
-                        if not path in filtered_paths:
-                            filtered_paths.append(path)
-
-                            print path
-
-    quit()
+            '''append unclassified path'''
+            filtered_paths.append(path)
 
     return filtered_paths
 
 def main():
-    paths = getPaths('/Users/bernhardesperester/sync/cg/onTheHunt')
+    paths = getPaths('D:/sync/cg/onTheHunt')
 
     classified_paths = classifyPaths(paths)
 
-    return
+    filtered_paths = filterPaths(paths, classified_paths)
 
-    grouped_paths = groupedPaths(classified_paths)
-
-    filtered_paths = filteredPaths(paths, grouped_paths)
-
-    for filtered_path in filtered_paths:
-        print filtered_path
-
-    return
-
-    for group in grouped_paths:
-        if group['key'] == '/Users/bernhardesperester/sync/cg/onTheHunt/assets/girl/cg-exchange/output-zbrush/sculpting_girl_v':
-            print group['paths'][-2]
+    for path in filtered_paths:
+        print path
 
 if __name__ == '__main__':
     main()
