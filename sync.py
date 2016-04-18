@@ -124,7 +124,7 @@ rsync_options = {
     '--version': 'print version number'
 }
 
-rsync_push_options = ['--checksum', '--recursive', '--verbose', '--links', '--times', '--compress', '--exclude={}'.format(repository.REPOSITORY_DIR), '--chmod=ugo=rwX', '--progress']
+rsync_push_options = ['--recursive', '--verbose', '--links', '--times', '--compress', '--exclude={}'.format(repository.REPOSITORY_DIR), '--chmod=ugo=rwX', '--progress']
 
 class SyncResult:
     '''an object containing all information about the sync'''
